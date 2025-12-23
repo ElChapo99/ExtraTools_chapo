@@ -12,23 +12,25 @@ import java.util.function.Consumer;
 
 public interface ETInventoryBlock {
 
-    int[] getInputSlots();
+    int[] obtenerRanurasDeEntrada();
 
-    int[] getOutputSlots();
+    int[] obtenerRanurasDeSalida();
 
-    default void createPreset(SlimefunItem item, Consumer<BlockMenuPreset> setup) {
-        String title = item.getItemName();
-        new BlockMenuPreset(item.getId(), title) {
+    default void crearPreset(SlimefunItem item, Consumer<BlockMenuPreset> configuracion) {
+        String titulo = item.getItemName();
+        new BlockMenuPreset(item.getId(), titulo) {
             public void init() {
-                setup.accept(this);
+                configuracion.accept(this);
             }
 
             public int[] getSlotsAccessedByItemTransport(ItemTransportFlow flow) {
-                return flow == ItemTransportFlow.INSERT ? getInputSlots() : getOutputSlots();
+                return flow == ItemTransportFlow.INSERT ? obtenerRanurasDeEntrada() : obtenerRanurasDeSalida();
             }
 
-            public boolean canOpen(Block b, Player p) {
-                return p.hasPermission("slimefun.inventory.bypass") || Slimefun.getProtectionManager().hasPermission(p, b.getLocation(), Interaction.INTERACT_BLOCK) && Slimefun.getPermissionsService().hasPermission(p, item);
+            public boolean puedeAbrir(Block b, Player p) {
+                return p.hasPermission("slimefun.inventory.bypass") 
+                    || Slimefun.getProtectionManager().hasPermission(p, b.getLocation(), Interaction.INTERACT_BLOCK) 
+                    && Slimefun.getPermissionsService().hasPermission(p, item);
             }
         };
     }
