@@ -28,17 +28,17 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 
-public class CobblestoneGenerator extends SimpleSlimefunItem<BlockTicker> implements ETInventoryBlock,
+public class GeneradorDePiedra extends SimpleSlimefunItem<BlockTicker> implements ETInventoryBlock,
     EnergyNetComponent {
 
-    private static final int ENERGY_CONSUMPTION = 32;
-    private final int[] border = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 18, 19, 20, 21, 22, 27, 28, 29, 30,
+    private static final int CONSUMO_DE_ENERGIA = 32;
+    private final int[] borde = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 18, 19, 20, 21, 22, 27, 28, 29, 30,
         31, 36, 37, 38, 39, 40, 41, 42, 43, 44, 22};
-    private final int[] inputBorder = {};
-    private final int[] outputBorder = {14, 15, 16, 17, 23, 26, 32, 33, 34, 35};
-    private int decrement = 2;
+    private final int[] bordeEntrada = {};
+    private final int[] bordeSalida = {14, 15, 16, 17, 23, 26, 32, 33, 34, 35};
+    private int decremento = 2;
 
-    public CobblestoneGenerator() {
+    public GeneradorDePiedra() {
         super(ETItems.extra_tools, ETItems.COBBLESTONE_GENERATOR, RecipeType.ENHANCED_CRAFTING_TABLE,
             new ItemStack[] {SlimefunItems.PROGRAMMABLE_ANDROID_MINER, SlimefunItems.MAGNESIUM_INGOT,
                 SlimefunItems.PROGRAMMABLE_ANDROID_MINER,
@@ -47,21 +47,21 @@ public class CobblestoneGenerator extends SimpleSlimefunItem<BlockTicker> implem
                 SlimefunItems.PROGRAMMABLE_ANDROID_MINER, SlimefunItems.BIG_CAPACITOR,
                 SlimefunItems.PROGRAMMABLE_ANDROID_MINER});
 
-        createPreset(this, this::constructMenu);
+        crearPreset(this, this::construirMenu);
 
-        addItemHandler(onBreak());
+        addItemHandler(alRomper());
     }
 
-    private void constructMenu(BlockMenuPreset preset) {
-        for (int i : border) {
+    private void construirMenu(BlockMenuPreset preset) {
+        for (int i : borde) {
             preset.addItem(i, new CustomItemStack(new ItemStack(Material.GRAY_STAINED_GLASS_PANE), " "),
                 ChestMenuUtils.getEmptyClickHandler());
         }
-        for (int i : inputBorder) {
+        for (int i : bordeEntrada) {
             preset.addItem(i, new CustomItemStack(new ItemStack(Material.CYAN_STAINED_GLASS_PANE), " "),
                 ChestMenuUtils.getEmptyClickHandler());
         }
-        for (int i : outputBorder) {
+        for (int i : bordeSalida) {
             preset.addItem(i, new CustomItemStack(new ItemStack(Material.ORANGE_STAINED_GLASS_PANE), " "),
                 ChestMenuUtils.getEmptyClickHandler());
         }
@@ -103,7 +103,7 @@ public class CobblestoneGenerator extends SimpleSlimefunItem<BlockTicker> implem
         return 512;
     }
 
-    public BlockBreakHandler onBreak() {
+    public BlockBreakHandler alRomper() {
         return new BlockBreakHandler(false, false) {
 
             @Override
@@ -124,38 +124,38 @@ public class CobblestoneGenerator extends SimpleSlimefunItem<BlockTicker> implem
         return new BlockTicker() {
 
             @Override
-            // Fires first!! The method tick() fires after this
+            // ¡Se ejecuta primero! El método tick() se ejecuta después
             public void uniqueTick() {
-                // Needed to keep track of all cobble gens at once,
-                // All it does is set back to max (for now 2, will be customizable)
-                // when it reaches the lowest possible (AKA 1)
-                if (decrement == 1) {
-                    decrement = 2;
+                // Necesario para controlar todos los generadores de piedra a la vez,
+                // Solo hace que vuelva al máximo (por ahora 2, será personalizable)
+                // cuando llega al mínimo posible (es decir 1)
+                if (decremento == 1) {
+                    decremento = 2;
                     return;
                 }
-                decrement--;
+                decremento--;
 
             }
 
             @Override
             public void tick(Block b, SlimefunItem sf, Config data) {
-                // We only act once per decrement cycle, when decrement got to
-                // lowest and has been reset
-                if (decrement != 2) {
+                // Solo actuamos una vez por ciclo de decremento, cuando decremento llega
+                // al mínimo y se ha reiniciado
+                if (decremento != 2) {
                     return;
                 }
 
-                ItemStack output = new ItemStack(Material.COBBLESTONE);
+                ItemStack salida = new ItemStack(Material.COBBLESTONE);
 
-                if (getCharge(b.getLocation()) >= ENERGY_CONSUMPTION) {
+                if (getCharge(b.getLocation()) >= CONSUMO_DE_ENERGIA) {
                     BlockMenu menu = BlockStorage.getInventory(b);
 
-                    if (!menu.fits(output, getOutputSlots())) {
+                    if (!menu.fits(salida, getOutputSlots())) {
                         return;
                     }
 
-                    removeCharge(b.getLocation(), ENERGY_CONSUMPTION);
-                    menu.pushItem(output, getOutputSlots());
+                    removeCharge(b.getLocation(), CONSUMO_DE_ENERGIA);
+                    menu.pushItem(salida, getOutputSlots());
                 }
             }
 
@@ -167,4 +167,3 @@ public class CobblestoneGenerator extends SimpleSlimefunItem<BlockTicker> implem
     }
 
 }
-
